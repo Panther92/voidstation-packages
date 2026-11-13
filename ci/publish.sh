@@ -84,19 +84,38 @@ done
 xbps-rindex --privkey "$key" --sign-pkg "${new[@]}"
 
 # --- 4: check ------------------------------------------------------------
+# The key that signed must be the one committed in keys/ (what devices get).
 openssl rsa -in "$key" -pubout -out "$tmp/public.pem" 2>/dev/null
 fp="$(python3 "$here/ci/keyplist.py" "$tmp/public.pem" "$signer" "$tmp/keys")"
-if [ -d "$here/keys" ] && ! [ -f "$here/keys/$fp.plist" ]; then
-	echo "::warning title=Key not in keys/::keys/$fp.plist is missing - devices would not trust this signature"
+if ! [ -f "$here/keys/$fp.plist" ]; then
+	echo "::error title=Unknown key::signed with $fp, but keys/$fp.plist is not in the repository - devices would not trust it"
+	exit 1
 fi
+# xbps only checks signatures of remote repositories, so serve the result
+# over HTTP on localhost and sync it like a device would: with exactly our
+# key preinstalled. A different key would show up as a second key file.
+port=$(( 20000 + RANDOM % 20000 ))
+python3 -m http.server "$port" --bind 127.0.0.1 --directory "$out" >/dev/null 2>&1 &
+srv=$!
+trap 'kill "$srv" 2>/dev/null; rm -rf "$tmp"' EXIT
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+	curl -fsS -o /dev/null "http://127.0.0.1:$port/" 2>/dev/null && break
+	sleep 0.5
+done
+url="http://127.0.0.1:$port"
 for arch in $archs; do
 	[ -f "$out/$arch-repodata" ] || continue
 	root="$tmp/root-$arch"
 	mkdir -p "$root/var/db/xbps/keys"
-	cp "$tmp/keys/$fp.plist" "$root/var/db/xbps/keys/"
-	XBPS_TARGET_ARCH="$arch" xbps-install -r "$root" -R "$out" -S >/dev/null
-	XBPS_TARGET_ARCH="$arch" xbps-query -r "$root" -R "$out" -L | tee "$tmp/L"
-	grep -q 'RSA signed' "$tmp/L" || { echo "::error::$arch index is not signed"; exit 1; }
+	cp "$here/keys/$fp.plist" "$root/var/db/xbps/keys/"
+	XBPS_TARGET_ARCH="$arch" xbps-install -r "$root" -R "$url" -S </dev/null
+	keys="$(ls "$root/var/db/xbps/keys")"
+	if [ "$keys" != "$fp.plist" ]; then
+		echo "::error::$arch: unexpected keys after sync: $keys"
+		exit 1
+	fi
+	XBPS_TARGET_ARCH="$arch" xbps-query -r "$root" --repository="$url" -Lv | tee "$tmp/L"
+	grep -q '(RSA signed)' "$tmp/L" || { echo "::error::$arch index is not signed"; exit 1; }
 done
 for f in "${new[@]}"; do
 	[ -s "$f.sig2" ] || { echo "::error::missing signature $f.sig2"; exit 1; }
