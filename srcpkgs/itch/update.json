@@ -1,0 +1,5 @@
+{
+  "source": "text",
+  "url": "https://broth.itch.zone/itch/linux-amd64/LATEST",
+  "regex": "(?P<version>\\d+(?:\\.\\d+)+)"
+}

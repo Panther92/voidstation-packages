@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: 'Templates to build: "all", or names separated by spaces'
+        description: 'Templates to build: "all", "branch" (what this branch changes), or names separated by spaces'
         required: true
         default: all
       publish:
@@ -38,6 +38,7 @@ jobs:
     outputs:
       packages: ${{ steps.plan.outputs.packages }}
       count: ${{ steps.plan.outputs.count }}
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -56,23 +57,28 @@ jobs:
           set -euo pipefail
           list="$(bash ci/plan.sh)"
           count="$(wc -w <<< "$list")"
-          echo "packages=$list" >> "$GITHUB_OUTPUT"
-          echo "count=$count" >> "$GITHUB_OUTPUT"
+          # shellcheck disable=SC2086
+          matrix="$(python3 ci/groups.py $list)"
+          {
+            echo "packages=$list"
+            echo "count=$count"
+            echo "matrix=$matrix"
+          } >> "$GITHUB_OUTPUT"
           {
             echo "### Templates to build ($count)"
             for p in $list; do echo "- \`$p\`"; done
           } >> "$GITHUB_STEP_SUMMARY"
 
   build:
-    name: Build ${{ matrix.arch }}
+    name: ${{ matrix.name }} (${{ matrix.arch }})
     needs: plan
     if: needs.plan.outputs.count != '0'
     runs-on: ubuntu-24.04
-    timeout-minutes: 300
+    timeout-minutes: 340
     strategy:
       fail-fast: false
-      matrix:
-        arch: [x86_64, i686]
+      # one job per group of templates that depend on each other (ci/groups.py)
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     container:
       image: ghcr.io/void-linux/void-glibc-full:20250901R1
       options: --platform linux/amd64 --privileged
@@ -101,7 +107,7 @@ jobs:
         shell: bash
         env:
           ARCH: ${{ matrix.arch }}
-          PKGS: ${{ needs.plan.outputs.packages }}
+          PKGS: ${{ matrix.pkgs }}
         run: |
           set -o pipefail
           # shellcheck disable=SC2086
@@ -116,7 +122,7 @@ jobs:
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: pkgs-${{ matrix.arch }}
+          name: pkgs-${{ matrix.arch }}-${{ matrix.name }}
           path: vp/hostdir/binpkgs/*.xbps
           if-no-files-found: ignore
           retention-days: 14

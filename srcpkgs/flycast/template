@@ -1,0 +1,34 @@
+# Template file for 'flycast'
+#
+# Built from the release tag with its git submodules (fetched with git,
+# commit pinned in _commit) against Void's SDL2, libzip and Lua.
+# Version and commit are maintained by ci/update.py (update.json).
+pkgname=flycast
+version=2.7
+revision=1
+_commit="5aa091fde632fb332c8d8c34e280d62dc951954c"
+archs="x86_64"
+build_style=cmake
+configure_args="-DUSE_HOST_SDL=ON -DUSE_HOST_LIBZIP=ON -DUSE_BREAKPAD=OFF
+ -DUSE_DISCORD=OFF -DENABLE_CTEST=OFF -DUSE_VULKAN=ON -DUSE_OPENGL=ON"
+hostmakedepends="git pkg-config"
+makedepends="SDL2-devel libzip-devel libcurl-devel zlib-devel lua54-devel
+ miniupnpc-devel alsa-lib-devel libao-devel pulseaudio-devel libX11-devel
+ MesaLib-devel Vulkan-Headers"
+short_desc="Sega Dreamcast, Naomi and Atomiswave emulator"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://github.com/flyinghead/flycast"
+
+do_fetch() {
+	rm -rf "${wrksrc}"
+	git clone --quiet --depth 1 --branch "v${version}" --recurse-submodules \
+		--shallow-submodules https://github.com/flyinghead/flycast.git "${wrksrc}"
+	if [ "$(git -C "${wrksrc}" rev-parse HEAD)" != "${_commit}" ]; then
+		msg_error "tag v${version} is $(git -C "${wrksrc}" rev-parse HEAD), expected ${_commit}\n"
+	fi
+}
+
+do_extract() {
+	:
+}

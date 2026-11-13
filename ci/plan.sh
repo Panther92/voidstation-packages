@@ -7,7 +7,8 @@
 # the environment (EVENT, INPUT, BEFORE, PR_BASE, PR_HEAD, REF, GITHUB_SHA)
 # and prints the template names on one line.
 #
-#   workflow_dispatch   INPUT = "all" or names
+#   workflow_dispatch   INPUT = "all", "branch" (like a push to a branch)
+#                       or names
 #   pull_request        templates changed between PR base and head
 #   push to main        templates changed by the push (BEFORE..GITHUB_SHA)
 #   push to a branch    templates changed since the branch left main
@@ -24,7 +25,13 @@ base="" head="${GITHUB_SHA:-HEAD}"
 
 case "${EVENT:?}" in
 	workflow_dispatch)
-		if [ "${INPUT:-all}" = all ]; then mode="all"; else mode="list"; fi ;;
+		case "${INPUT:-all}" in
+			all) mode="all" ;;
+			branch)
+				base="$(git merge-base origin/main "$head" 2>/dev/null || true)"
+				mode="diff" ;;
+			*) mode="list" ;;
+		esac ;;
 	pull_request)
 		base="${PR_BASE:?}" head="${PR_HEAD:?}" mode="diff" ;;
 	push)
@@ -63,4 +70,15 @@ case "$mode" in
 		fi ;;
 esac
 
-echo "$list" | xargs
+# templates still waiting for their first version/checksums (filled in by
+# the update check, which then starts the build itself) are left out
+out=""
+for p in $list; do
+	t="srcpkgs/$p/template"
+	if grep -qE '^version=0$|^checksum=PENDING$' "$t"; then
+		echo "::notice title=$p::placeholder version/checksum, left to the update check" >&2
+		continue
+	fi
+	out="$out $p"
+done
+echo "$out" | xargs

@@ -1,0 +1,5 @@
+{
+  "source": "github-tag",
+  "repo": "sammycage/plutosvg",
+  "tag": "^v(?P<version>\\d+\\.\\d+\\.\\d+)$"
+}

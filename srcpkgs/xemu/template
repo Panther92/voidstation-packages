@@ -1,0 +1,58 @@
+# Template file for 'xemu'
+#
+# Original Xbox emulator (QEMU based), built from the release tag like
+# upstream's build.sh does on Linux (i386-softmmu with -DXBOX=1); the meson
+# wraps of the source are fetched during configure. Cloned with git (commit
+# pinned in _commit) because the version is taken from git describe.
+# Version and commit are maintained by ci/update.py (update.json).
+pkgname=xemu
+version=0.8.139
+revision=1
+_commit="aa54c34cae1c09410d74c69a44210a9867fe2d16"
+archs="x86_64"
+hostmakedepends="git pkg-config python3 python3-yaml ninja meson cmake curl tar flex bison"
+makedepends="SDL3-devel libepoxy-devel pixman-devel gtk+3-devel openssl-devel
+ libsamplerate-devel libpcap-devel libslirp-devel glib-devel zlib-devel
+ libcurl-devel"
+short_desc="Original Xbox emulator"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://xemu.app"
+
+do_fetch() {
+	rm -rf "${wrksrc}"
+	git clone --quiet --depth 1 --branch "v${version}" \
+		https://github.com/xemu-project/xemu.git "${wrksrc}"
+	if [ "$(git -C "${wrksrc}" rev-parse HEAD)" != "${_commit}" ]; then
+		msg_error "tag v${version} is $(git -C "${wrksrc}" rev-parse HEAD), expected ${_commit}\n"
+	fi
+}
+
+do_extract() {
+	:
+}
+
+do_configure() {
+	mkdir -p build
+	cd build
+	../configure --extra-cflags="-DXBOX=1 ${CFLAGS}" \
+		--extra-ldflags="${LDFLAGS}" \
+		--target-list=i386-softmmu --disable-werror
+}
+
+do_build() {
+	make -C build ${makejobs}
+}
+
+do_install() {
+	vbin build/qemu-system-i386 xemu
+	if [ -f XEMU_LICENSE ]; then
+		vlicense XEMU_LICENSE LICENSE
+	else
+		python3 scripts/gen-license.py > LICENSE.xemu
+		vlicense LICENSE.xemu LICENSE
+	fi
+	if [ -f ui/icons/xemu_256x256.png ]; then
+		vinstall ui/icons/xemu_256x256.png 644 usr/share/pixmaps xemu.png
+	fi
+}

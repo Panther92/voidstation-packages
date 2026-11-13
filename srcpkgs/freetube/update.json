@@ -1,0 +1,7 @@
+{
+  "source": "github-release",
+  "repo": "FreeTubeApp/FreeTube",
+  "tag": "^v(?P<version>\\d+(?:\\.\\d+)+)-beta$",
+  "asset": "freetube-{version}-beta-amd64.AppImage",
+  "prerelease": true
+}

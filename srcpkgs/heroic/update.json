@@ -1,0 +1,6 @@
+{
+  "source": "github-release",
+  "repo": "Heroic-Games-Launcher/HeroicGamesLauncher",
+  "tag": "^v(?P<version>\\d+(?:\\.\\d+)+)$",
+  "asset": "Heroic-{version}-linux-x86_64.AppImage"
+}

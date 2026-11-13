@@ -36,7 +36,8 @@ the repository key in `keys/`.
 | `ci/void-packages.ref` | void-packages commit the templates are built against |
 | `ci/plan.sh`, `ci/changed.sh` | which templates a push or pull request has to build |
 | `ci/prepare.sh` | void-packages at the pinned commit + our templates, name clash check |
-| `ci/build.sh` | bootstrap and build for one architecture (x86_64, i686) |
+| `ci/groups.py` | splits the templates into independent groups, one build job each |
+| `ci/build.sh` | bootstrap and build one group for one architecture (x86_64, i686); a failed template does not stop the others |
 | `ci/publish.sh` | add to the index, sign, check, upload |
 | `ci/keyplist.py` | public key → xbps key plist (fingerprint as xbps shows it) |
 | `tools/genkey.sh` | create the signing key (run once, on a trusted machine) |

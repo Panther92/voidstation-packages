@@ -1,0 +1,36 @@
+# Template file for 'rapidyaml'
+#
+# Build dependency of PCSX2 only (not in Void). Static. Kept on the 0.12
+# series PCSX2 builds against (see update.json); needs the c4core submodule,
+# hence git (commit pinned in _commit).
+# Version and commit are maintained by ci/update.py (update.json).
+pkgname=rapidyaml
+version=0.12.1
+revision=1
+archs="x86_64"
+_commit="b56567b0bd24e9ce7beb08d6950a5732f62f6e74"
+build_style=cmake
+configure_args="-DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+ -DRYML_BUILD_TESTS=OFF"
+hostmakedepends="git"
+short_desc="Fast YAML parser and emitter in C++ (static, build dependency)"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="MIT"
+homepage="https://github.com/biojppm/rapidyaml"
+
+do_fetch() {
+	rm -rf "${wrksrc}"
+	git clone --quiet --depth 1 --branch "v${version}" --recurse-submodules \
+		--shallow-submodules https://github.com/biojppm/rapidyaml.git "${wrksrc}"
+	if [ "$(git -C "${wrksrc}" rev-parse HEAD)" != "${_commit}" ]; then
+		msg_error "tag v${version} is $(git -C "${wrksrc}" rev-parse HEAD), expected ${_commit}\n"
+	fi
+}
+
+do_extract() {
+	:
+}
+
+post_install() {
+	vlicense LICENSE.txt
+}

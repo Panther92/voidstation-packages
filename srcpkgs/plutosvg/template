@@ -1,0 +1,23 @@
+# Template file for 'plutosvg'
+#
+# Build dependency of PCSX2 only (not in Void). Static, like plutovg.
+# Version and checksum are maintained by ci/update.py (update.json).
+pkgname=plutosvg
+version=0.0.8
+revision=1
+archs="x86_64"
+build_style=cmake
+configure_args="-DBUILD_SHARED_LIBS=OFF -DPLUTOSVG_ENABLE_FREETYPE=OFF
+ -DPLUTOSVG_BUILD_EXAMPLES=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+makedepends="plutovg"
+depends="plutovg"
+short_desc="Tiny SVG rendering library in C (static, build dependency)"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="MIT"
+homepage="https://github.com/sammycage/plutosvg"
+distfiles="https://github.com/sammycage/plutosvg/archive/refs/tags/v${version}.tar.gz"
+checksum=49d5cfe772d3aa10cd4879f2f6e189f5083c08e4c8ea01bf3d5b87c97dfca7d2
+
+post_install() {
+	vlicense LICENSE
+}

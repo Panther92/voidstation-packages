@@ -1,0 +1,5 @@
+{
+  "source": "github-tag",
+  "repo": "Rosalie241/RMG",
+  "tag": "^v(?P<version>\\d+(?:\\.\\d+)+)$"
+}

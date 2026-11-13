@@ -1,0 +1,64 @@
+# Template file for 'mullvad-vpn'
+#
+# Mullvad only ships .deb/.rpm with systemd units. This takes the official
+# .deb from GitHub, checks its OpenPGP signature against Mullvad's code
+# signing key (files/mullvad-signing.asc, fingerprint below) and packages the
+# daemon and the CLI only - no Electron GUI (VoidStation has its own) - with
+# a runit service and a core-service instead of the systemd units.
+# Same content as the package VoidStation builds on each device today
+# (launcher/voidstation-mullvad), which it replaces.
+# Version and checksums are maintained by ci/update.py (update.json).
+pkgname=mullvad-vpn
+version=2026.5
+revision=1
+archs="x86_64"
+_deb="MullvadVPN-${version}_amd64.deb"
+_fpr=A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF
+hostmakedepends="gnupg bsdtar"
+short_desc="Mullvad VPN daemon and CLI - official release, repackaged for runit"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://mullvad.net"
+distfiles="https://github.com/mullvad/mullvadvpn-app/releases/download/${version}/${_deb}
+ https://github.com/mullvad/mullvadvpn-app/releases/download/${version}/${_deb}.asc"
+checksum="aa6bd00452588597f50e8ca2f02bb91e9c295c4f01b0ae907354552e7428e7ab
+ a4e02eb2546a03fc1fbefae8063194cb6d274c304f18b8dce98bd98d9cdbe736"
+skip_extraction="${_deb} ${_deb}.asc"
+conflicts="mullvad-vpn-voidstation>=0"
+replaces="mullvad-vpn-voidstation>=0"
+nostrip=yes
+
+do_extract() {
+	local d="${XBPS_SRCDISTDIR}/${pkgname}-${version}"
+	export GNUPGHOME="$PWD/.gnupg"
+	mkdir -m 700 "$GNUPGHOME"
+	gpg --batch --quiet --import "${FILESDIR}/mullvad-signing.asc"
+	if ! gpg --batch --status-fd 1 --verify "$d/${_deb}.asc" "$d/${_deb}" > gpg.status 2>/dev/null; then
+		msg_error "${_deb}: signature INVALID\n"
+	fi
+	if ! grep -Eq "^\[GNUPG:\] VALIDSIG .* ${_fpr}$" gpg.status; then
+		msg_error "${_deb}: not signed by Mullvad's code signing key\n"
+	fi
+	rm -rf "$GNUPGHOME"
+	bsdtar -xf "$d/${_deb}"
+	bsdtar -xf data.tar.*
+}
+
+do_install() {
+	local res="opt/Mullvad VPN/resources" f
+	vbin usr/bin/mullvad
+	vbin usr/bin/mullvad-daemon
+	vbin usr/bin/mullvad-exclude
+	for f in mullvad-setup mullvad-problem-report; do
+		install -Dm755 "${res}/${f}" "${DESTDIR}/${res}/${f}"
+	done
+	for f in ca.crt relays.json CHANGELOG.md; do
+		install -Dm644 "${res}/${f}" "${DESTDIR}/${res}/${f}"
+	done
+	ln -s "/${res}/mullvad-problem-report" "${DESTDIR}/usr/bin/mullvad-problem-report"
+	if [ -f usr/share/bash-completion/completions/mullvad ]; then
+		vcompletion usr/share/bash-completion/completions/mullvad bash mullvad
+	fi
+	vsv mullvad-daemon
+	vinstall "${FILESDIR}/95-voidstation-mullvad.sh" 644 etc/runit/core-services
+}

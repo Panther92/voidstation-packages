@@ -1,0 +1,60 @@
+# Template file for 'heroic'
+#
+# Official AppImage from Heroic-Games-Launcher/HeroicGamesLauncher, unpacked (no FUSE, no
+# AppImage runtime at run time) and installed to /usr/lib/heroic.
+# Version and checksum are maintained by ci/update.py (update.json).
+pkgname=heroic
+version=2.22.4
+revision=1
+archs="x86_64"
+_file="Heroic-${version}-linux-x86_64.AppImage"
+depends="gtk+3 nss libcups libgbm at-spi2-core alsa-lib libxkbcommon libXScrnSaver libnotify libXtst xdg-utils"
+short_desc="Launcher for Epic, GOG and Amazon games - official release, repackaged"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://heroicgameslauncher.com"
+distfiles="https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher/releases/download/v${version}/${_file}"
+checksum=1664fc3c8e746325f049273272a0eae5a7f653bd3eb4534c2e2a26ef90086e99
+skip_extraction="${_file}"
+nostrip=yes
+nopie=yes
+noshlibprovides=yes
+noverifyrdeps=yes
+
+do_extract() {
+	cp "${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_file}" app.AppImage
+	chmod +x app.AppImage
+	./app.AppImage --appimage-extract >/dev/null
+	rm app.AppImage
+	# some AppImages ship world-writable files (xbps-src refuses them)
+	chmod -R go-w squashfs-root
+}
+
+do_install() {
+	vmkdir usr/lib/${pkgname}
+	cp -a squashfs-root/. "${DESTDIR}/usr/lib/${pkgname}/"
+	chmod 755 "${DESTDIR}/usr/lib/${pkgname}"
+	# AppRun sets up the environment the app expects, APPDIR points it here
+	vmkdir usr/bin
+	cat > "${DESTDIR}/usr/bin/${pkgname}" <<-EOF
+	#!/bin/sh
+	export APPDIR=/usr/lib/${pkgname}
+	exec /usr/lib/${pkgname}/AppRun "\$@"
+	EOF
+	chmod 755 "${DESTDIR}/usr/bin/${pkgname}"
+	# desktop file and icon, if the AppImage has them at the top
+	local d
+	for d in squashfs-root/*.desktop; do
+		[ -f "$d" ] || continue
+		sed -e "s|^Exec=[^ ]*|Exec=/usr/bin/${pkgname}|" "$d" > "${pkgname}.desktop"
+		vinstall "${pkgname}.desktop" 644 usr/share/applications
+	done
+	for d in squashfs-root/*.png; do
+		# not "[ ] && vinstall": vinstall is an alias starting with "set -f;",
+		# so the && would only guard that part
+		if [ -f "$d" ]; then
+			vinstall "$d" 644 usr/share/pixmaps "${pkgname}.png"
+		fi
+	done
+	return 0
+}

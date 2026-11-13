@@ -1,0 +1,8 @@
+{
+  "source": "json",
+  "url": "https://librewolf.dev/api/v1/repos/librewolf/bsys6/releases/latest",
+  "path": "tag_name",
+  "regex": "(?P<version>\\d+(?:\\.\\d+)+-\\d+)",
+  "replace": [["-", "."]],
+  "var": {"name": "_dl", "list": "assets", "pick": "-linux-x86_64-appimage\\.AppImage$", "field": "browser_download_url"}
+}

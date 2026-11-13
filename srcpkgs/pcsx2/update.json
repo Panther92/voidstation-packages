@@ -1,0 +1,6 @@
+{
+  "source": "github-release",
+  "repo": "PCSX2/pcsx2",
+  "latest": true,
+  "tag": "^v(?P<version>\\d+\\.\\d+\\.\\d+)$"
+}

@@ -1,0 +1,6 @@
+{
+  "source": "github-tag",
+  "repo": "cemu-project/Cemu",
+  "tag": "^v(?P<version>\\d+\\.\\d+(?:\\.\\d+)?)$",
+  "commit_var": "_commit"
+}

@@ -1,0 +1,39 @@
+# Template file for 'azahar'
+#
+# Nintendo 3DS emulator, built from the release tag with its git submodules
+# (fetched with git, commit pinned in _commit) against Void's Qt 6 and SDL2.
+# FFmpeg support is off: Azahar requires exactly FFmpeg 7, Void has 6;
+# without it only video dumping is missing, AAC audio goes through the
+# bundled faad2.
+# Version and commit are maintained by ci/update.py (update.json).
+pkgname=azahar
+version=2126.2
+revision=1
+_commit="219d743a1e698101fe1ab8bef43e6563126c3c27"
+archs="x86_64"
+build_style=cmake
+configure_args="-DUSE_SYSTEM_QT=ON -DUSE_SYSTEM_SDL2=ON -DUSE_SYSTEM_LIBUSB=ON
+ -DENABLE_FFMPEG=OFF -DENABLE_TESTS=OFF -DENABLE_QT_UPDATE_CHECKER=OFF
+ -DENABLE_ROOM_STANDALONE=OFF -DCITRA_WARNINGS_AS_ERRORS=OFF
+ -DENABLE_DISCORD_RPC=OFF -DCITRA_USE_PRECOMPILED_HEADERS=OFF"
+hostmakedepends="git pkg-config python3 qt6-base qt6-tools glslang"
+makedepends="qt6-base-devel qt6-base-private-devel qt6-multimedia-devel qt6-tools-devel SDL2-devel
+ libusb-devel openssl-devel zlib-devel pipewire-devel pulseaudio-devel
+ alsa-lib-devel libX11-devel MesaLib-devel"
+short_desc="Nintendo 3DS emulator"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://azahar-emu.org"
+
+do_fetch() {
+	rm -rf "${wrksrc}"
+	git clone --quiet --depth 1 --branch "${version}" --recurse-submodules \
+		--shallow-submodules https://github.com/azahar-emu/azahar.git "${wrksrc}"
+	if [ "$(git -C "${wrksrc}" rev-parse HEAD)" != "${_commit}" ]; then
+		msg_error "tag ${version} is $(git -C "${wrksrc}" rev-parse HEAD), expected ${_commit}\n"
+	fi
+}
+
+do_extract() {
+	:
+}

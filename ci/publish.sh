@@ -5,7 +5,7 @@
 #
 # Runs in the 'publish' job (environment "release", needs Paul's approval).
 #
-#   <artifacts>/pkgs-<arch>/*.xbps   unsigned packages from the build jobs
+#   <artifacts>/pkgs-<arch>-<group>/*.xbps   unsigned packages from the build jobs
 #   <out>/                           signed result, uploaded afterwards
 #
 # Steps per architecture:
@@ -48,9 +48,8 @@ shopt -s nullglob
 
 # --- 1 + 2: collect ------------------------------------------------------
 for arch in $archs; do
-	src="$art/pkgs-$arch"
-	[ -d "$src" ] || continue
-	for f in "$src"/*.xbps; do
+	# one artifact per build job: pkgs-<arch>-<group>
+	for f in "$art"/pkgs-"$arch"-*/*.xbps; do
 		# the first arch (x86_64) wins for noarch packages
 		[ -e "$out/${f##*/}" ] || cp "$f" "$out/"
 	done
