@@ -10,7 +10,8 @@ revision=1
 archs="x86_64"
 build_style=cmake
 configure_args="-DPORTABLE_INSTALL=OFF -DUPDATER=OFF -DAPPIMAGE_UPDATER=OFF
- -DUSE_CCACHE=OFF -DUSE_ANGRYLION=OFF"
+ -DUSE_CCACHE=OFF -DUSE_ANGRYLION=OFF
+ -DCMAKE_BUILD_TYPE=Release"
 hostmakedepends="pkg-config nasm git qt6-base qt6-tools"
 makedepends="qt6-base-devel qt6-svg-devel qt6-websockets-devel SDL3-devel SDL3_net-devel
  libusb-devel hidapi-devel libsamplerate-devel speexdsp-devel speex-devel

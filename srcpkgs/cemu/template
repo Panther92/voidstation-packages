@@ -36,7 +36,9 @@ do_fetch() {
 	git -C "${wrksrc}" submodule --quiet update --init --depth 1 \
 		dependencies/ZArchive dependencies/cubeb \
 		dependencies/Vulkan-Headers dependencies/imgui
-	# cubeb has submodules of its own (googletest, sanitizers): not needed
+	# cubeb's CMakeLists insists on its sanitizers-cmake submodule
+	git -C "${wrksrc}/dependencies/cubeb" submodule --quiet update --init --depth 1 \
+		cmake/sanitizers-cmake
 }
 
 do_extract() {
