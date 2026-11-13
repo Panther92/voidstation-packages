@@ -1,0 +1,41 @@
+# Template file for 'brave'
+#
+# Official Brave release zip from brave/brave-browser, unchanged, installed to
+# /usr/lib/brave. Brave's code is MPL-2.0; the name and logo are Brave's
+# trademarks and are shipped unmodified, as in Brave's own builds.
+# Version and checksum are maintained by ci/update.py (update.json).
+pkgname=brave
+version=0
+revision=1
+archs="x86_64"
+_file="brave-browser-${version}-linux-amd64.zip"
+hostmakedepends="unzip"
+depends="gtk+3 nss libcups libgbm at-spi2-core alsa-lib libxkbcommon libXScrnSaver libXtst xdg-utils"
+short_desc="Brave web browser - official release, repackaged"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="MPL-2.0"
+homepage="https://brave.com"
+distfiles="https://github.com/brave/brave-browser/releases/download/v${version}/${_file}"
+checksum=PENDING
+skip_extraction="${_file}"
+nostrip=yes
+nopie=yes
+noshlibprovides=yes
+noverifyrdeps=yes
+
+do_extract() {
+	unzip -q "${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_file}"
+}
+
+do_install() {
+	vmkdir usr/lib/${pkgname}
+	cp -a . "${DESTDIR}/usr/lib/${pkgname}/"
+	# the zip ships a start script "brave-browser" (or "brave")
+	local exe
+	for exe in brave-browser brave; do
+		[ -x "$exe" ] && break
+	done
+	[ -x "$exe" ] || msg_error "no start script in the zip\n"
+	vmkdir usr/bin
+	ln -s /usr/lib/${pkgname}/${exe} "${DESTDIR}/usr/bin/brave"
+}

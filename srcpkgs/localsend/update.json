@@ -1,0 +1,6 @@
+{
+  "source": "github-release",
+  "repo": "localsend/localsend",
+  "tag": "^v(?P<version>\\d+(?:\\.\\d+)+)$",
+  "asset": "LocalSend-{version}-linux-x86-64.AppImage"
+}

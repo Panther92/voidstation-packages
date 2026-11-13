@@ -1,0 +1,54 @@
+# Template file for 'freetube'
+#
+# Official AppImage from FreeTubeApp/FreeTube, unpacked (no FUSE, no
+# AppImage runtime at run time) and installed to /usr/lib/freetube.
+# Version and checksum are maintained by ci/update.py (update.json).
+pkgname=freetube
+version=0
+revision=1
+archs="x86_64"
+_file="freetube-${version}-beta-amd64.AppImage"
+depends="gtk+3 nss libcups libgbm at-spi2-core alsa-lib libxkbcommon libXScrnSaver libnotify libXtst xdg-utils"
+short_desc="Private YouTube client - official release, repackaged"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="AGPL-3.0-only"
+homepage="https://freetubeapp.io"
+distfiles="https://github.com/FreeTubeApp/FreeTube/releases/download/v${version}-beta/${_file}"
+checksum=PENDING
+skip_extraction="${_file}"
+nostrip=yes
+nopie=yes
+noshlibprovides=yes
+noverifyrdeps=yes
+
+do_extract() {
+	cp "${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_file}" app.AppImage
+	chmod +x app.AppImage
+	./app.AppImage --appimage-extract >/dev/null
+	rm app.AppImage
+}
+
+do_install() {
+	vmkdir usr/lib/${pkgname}
+	cp -a squashfs-root/. "${DESTDIR}/usr/lib/${pkgname}/"
+	chmod 755 "${DESTDIR}/usr/lib/${pkgname}"
+	# AppRun sets up the environment the app expects, APPDIR points it here
+	vmkdir usr/bin
+	cat > "${DESTDIR}/usr/bin/${pkgname}" <<-EOF
+	#!/bin/sh
+	export APPDIR=/usr/lib/${pkgname}
+	exec /usr/lib/${pkgname}/AppRun "\$@"
+	EOF
+	chmod 755 "${DESTDIR}/usr/bin/${pkgname}"
+	# desktop file and icon, if the AppImage has them at the top
+	local d
+	for d in squashfs-root/*.desktop; do
+		[ -f "$d" ] || continue
+		sed -e "s|^Exec=[^ ]*|Exec=/usr/bin/${pkgname}|" "$d" > "${pkgname}.desktop"
+		vinstall "${pkgname}.desktop" 644 usr/share/applications
+	done
+	for d in squashfs-root/*.png; do
+		[ -f "$d" ] && vinstall "$d" 644 usr/share/pixmaps "${pkgname}.png"
+	done
+	return 0
+}

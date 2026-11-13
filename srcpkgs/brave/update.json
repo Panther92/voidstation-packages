@@ -1,0 +1,6 @@
+{
+  "source": "github-release",
+  "repo": "brave/brave-browser",
+  "tag": "^v(?P<version>\\d+\\.\\d+\\.\\d+)$",
+  "asset": "brave-browser-{version}-linux-amd64.zip"
+}

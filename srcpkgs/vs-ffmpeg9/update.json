@@ -1,0 +1,5 @@
+{
+  "source": "github-tag",
+  "repo": "FFmpeg/FFmpeg",
+  "tag": "^n(?P<version>9\\.\\d+(?:\\.\\d+)?)$"
+}

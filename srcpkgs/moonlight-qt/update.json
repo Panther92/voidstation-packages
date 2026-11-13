@@ -1,0 +1,6 @@
+{
+  "source": "github-release",
+  "repo": "moonlight-stream/moonlight-qt",
+  "tag": "^v(?P<version>\\d+(?:\\.\\d+)+)$",
+  "asset": "MoonlightSrc-{version}.tar.gz"
+}

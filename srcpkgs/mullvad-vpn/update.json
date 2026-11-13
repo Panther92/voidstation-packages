@@ -1,0 +1,6 @@
+{
+  "source": "github-release",
+  "repo": "mullvad/mullvadvpn-app",
+  "tag": "^(?P<version>20\\d\\d\\.\\d{1,2})$",
+  "asset": "MullvadVPN-{version}_amd64.deb"
+}
