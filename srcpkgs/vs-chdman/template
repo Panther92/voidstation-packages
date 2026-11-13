@@ -10,13 +10,18 @@
 # 80 MB instead of the full 300 MB tarball) and pinned to the tag's commit.
 pkgname=vs-chdman
 version=0289
-revision=1
+revision=2
 _tag="mame${version}"
 _commit=f34f02505e32c1993c6a782b6814232cbfc74e36
 archs="x86_64"
 hostmakedepends="git python3 pkg-config"
 makedepends="SDL2-devel zlib-devel libzstd-devel libflac-devel
  libutf8proc-devel expat-devel"
+# Normally found by xbps-src from the binary (shlib scan); revision 1 came
+# out without any run-time dependency (libutf8proc missing on a device,
+# 2026-11-14). Listed explicitly; ci/build.sh now also refuses packages
+# whose programs have no run-time dependency at all.
+depends="zlib libzstd libflac libutf8proc expat"
 short_desc="CHD conversion tool from MAME, standalone build for VoidStation"
 maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="GPL-2.0-or-later, BSD-3-Clause"
