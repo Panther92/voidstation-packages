@@ -1,0 +1,76 @@
+# Template file for 'vs-chdman'
+#
+# chdman only, built from the MAME source tree. Void's 'mame' package ships
+# chdman together with the whole emulator (~400 MB installed); VoidStation
+# only needs the converter (bin/cue -> CHD in the game list). The binary goes
+# to /usr/libexec/voidstation so it never clashes with /usr/bin/chdman from
+# Void's 'mame'.
+#
+# The source is fetched with a sparse git checkout of the release tag (about
+# 80 MB instead of the full 300 MB tarball) and pinned to the tag's commit.
+pkgname=vs-chdman
+version=0289
+revision=1
+_tag="mame${version}"
+_commit=f34f02505e32c1993c6a782b6814232cbfc74e36
+archs="x86_64"
+hostmakedepends="git python3 pkg-config"
+makedepends="SDL2-devel zlib-devel libzstd-devel libflac-devel
+ libutf8proc-devel expat-devel"
+short_desc="CHD conversion tool from MAME, standalone build for VoidStation"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="GPL-2.0-or-later, BSD-3-Clause"
+homepage="https://www.mamedev.org"
+nodebug=yes
+
+_sparse="/makefile /scripts/ /regtests/regtests.mak /COPYING /src/version.cpp
+ /src/lib/ /src/osd/ /src/tools/ /src/emu/ /docs/legal/ /docs/man/chdman.1
+ /3rdparty/genie/ /3rdparty/flac/ /3rdparty/zlib/ /3rdparty/zstd/
+ /3rdparty/lzma/ /3rdparty/utf8proc/ /3rdparty/expat/ /3rdparty/aes256cbc/
+ /3rdparty/minimp3/ /3rdparty/wdlfft/ /3rdparty/nanosvg/ /3rdparty/rapidjson/
+ /3rdparty/pugixml/ /3rdparty/libjpeg/ /3rdparty/asio/ /3rdparty/compat/"
+
+do_fetch() {
+	local src="${wrksrc}"
+	rm -rf "$src"
+	git clone --quiet --depth 1 --branch "${_tag}" --filter=blob:none \
+		--no-checkout https://github.com/mamedev/mame.git "$src"
+	cd "$src"
+	if [ "$(git rev-parse HEAD)" != "${_commit}" ]; then
+		msg_error "tag ${_tag} is $(git rev-parse HEAD), expected ${_commit}\n"
+	fi
+	git sparse-checkout init --no-cone
+	printf '%s\n' ${_sparse} > .git/info/sparse-checkout
+	git checkout --quiet "${_tag}"
+}
+
+do_extract() {
+	:
+}
+
+_proj=build/projects/sdl/mame/gmake-linux
+
+do_configure() {
+	make ${makejobs} genie
+}
+
+do_build() {
+	make ${makejobs} TOOLS=1 EMULATOR=0 REGENIE=1 NOWERROR=1 SYMBOLS=0 \
+		PRECOMPILE=0 USE_QTDEBUG=0 PTR64=1 \
+		OVERRIDE_CC="$CC" OVERRIDE_CXX="$CXX" OVERRIDE_LD="$CXX" \
+		NO_X11=1 NO_OPENGL=1 NO_USE_XINPUT=1 NO_USE_MIDI=1 \
+		NO_USE_PORTAUDIO=1 NO_USE_PULSEAUDIO=1 NO_USE_PIPEWIRE=1 \
+		USE_SYSTEM_LIB_ZLIB=1 USE_SYSTEM_LIB_ZSTD=1 \
+		USE_SYSTEM_LIB_FLAC=1 USE_SYSTEM_LIB_UTF8PROC=1 \
+		USE_SYSTEM_LIB_EXPAT=1 \
+		${_proj}/Makefile build/generated/version.cpp
+	make ${makejobs} -C ${_proj} config=release64 chdman
+}
+
+do_install() {
+	vinstall chdman 755 usr/libexec/voidstation
+	if [ -f docs/man/chdman.1 ]; then
+		vman docs/man/chdman.1
+	fi
+	vlicense COPYING
+}
