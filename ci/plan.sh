@@ -50,12 +50,12 @@ fi
 
 case "$mode" in
 	all)
-		list="$(ci/changed.sh all)" ;;
+		list="$(bash ci/changed.sh all)" ;;
 	list)
 		# shellcheck disable=SC2086  # names separated by spaces
-		list="$(ci/changed.sh list ${INPUT})" ;;
+		list="$(bash ci/changed.sh list ${INPUT})" ;;
 	diff)
-		list="$(ci/changed.sh diff "$base" "$head")"
+		list="$(bash ci/changed.sh diff "$base" "$head")"
 		if [ -z "$list" ] && git diff --name-only "$base" "$head" |
 			grep -qE '^(ci/|\.github/workflows/build\.yml$)'; then
 			echo "only CI changed: canary build of $canary" >&2
