@@ -6,9 +6,9 @@
 # pinned in _commit) because the version is taken from git describe.
 # Version and commit are maintained by ci/update.py (update.json).
 pkgname=xemu
-version=0
+version=0.8.139
 revision=1
-_commit=0
+_commit="aa54c34cae1c09410d74c69a44210a9867fe2d16"
 archs="x86_64"
 hostmakedepends="git pkg-config python3 python3-yaml ninja meson flex bison"
 makedepends="SDL2-devel libepoxy-devel pixman-devel gtk+3-devel openssl-devel

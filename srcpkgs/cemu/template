@@ -7,9 +7,9 @@
 # so the UI follows the system theme.
 # Version and commit are maintained by ci/update.py (update.json).
 pkgname=cemu
-version=0
+version=2.6
 revision=1
-_commit=0
+_commit="a6fb0a48eb437a8a41c13b782ac8ae0433bf8f98"
 archs="x86_64"
 build_style=cmake
 configure_args="-DENABLE_VCPKG=ON -DALLOW_PORTABLE=OFF -DENABLE_DISCORD_RPC=OFF

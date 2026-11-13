@@ -5,7 +5,7 @@
 # (PORTABLE_INSTALL=OFF); follows the Qt theme of the system.
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=rmg
-version=0
+version=0.9.1
 revision=1
 archs="x86_64"
 build_style=cmake
@@ -21,4 +21,4 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="GPL-3.0-only"
 homepage="https://github.com/Rosalie241/RMG"
 distfiles="https://github.com/Rosalie241/RMG/archive/refs/tags/v${version}.tar.gz"
-checksum=PENDING
+checksum=9093a092256cbb1dab31060c0a413a7dc2ad07d6cc54354597b6ed4746fd31d1

@@ -7,9 +7,9 @@
 # bundled faad2.
 # Version and commit are maintained by ci/update.py (update.json).
 pkgname=azahar
-version=0
+version=2126.2
 revision=1
-_commit=0
+_commit="219d743a1e698101fe1ab8bef43e6563126c3c27"
 archs="x86_64"
 build_style=cmake
 configure_args="-DUSE_SYSTEM_QT=ON -DUSE_SYSTEM_SDL2=ON -DUSE_SYSTEM_LIBUSB=ON

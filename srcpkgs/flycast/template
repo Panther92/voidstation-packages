@@ -4,9 +4,9 @@
 # commit pinned in _commit) against Void's SDL2, libzip and Lua.
 # Version and commit are maintained by ci/update.py (update.json).
 pkgname=flycast
-version=0
+version=2.7
 revision=1
-_commit=0
+_commit="5aa091fde632fb332c8d8c34e280d62dc951954c"
 archs="x86_64"
 build_style=cmake
 configure_args="-DUSE_HOST_SDL=ON -DUSE_HOST_LIBZIP=ON -DUSE_BREAKPAD=OFF

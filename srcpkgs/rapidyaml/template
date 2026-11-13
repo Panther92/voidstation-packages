@@ -5,10 +5,10 @@
 # hence git (commit pinned in _commit).
 # Version and commit are maintained by ci/update.py (update.json).
 pkgname=rapidyaml
-version=0
+version=0.12.1
 revision=1
 archs="x86_64"
-_commit=0
+_commit="b56567b0bd24e9ce7beb08d6950a5732f62f6e74"
 build_style=cmake
 configure_args="-DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
  -DRYML_BUILD_TESTS=OFF"
