@@ -44,8 +44,9 @@ the repository key in `keys/`.
 
 ## Build and publish
 
-- Push to a branch or open a pull request: the changed templates are built for
-  x86_64 and i686 as a test. No key, no upload.
+- Push to a branch: the changed templates are built for x86_64 and i686 as a
+  test. No key, no upload. A pull request from that branch shows these checks;
+  only pull requests from forks get a build of their own.
 - Push to `main`: same build, then the job **Sign and publish** waits for
   approval in the environment `release`. Only that job can read the signing
   key. It fetches the current index, adds the new packages, signs, checks the
