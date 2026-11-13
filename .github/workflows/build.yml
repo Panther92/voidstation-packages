@@ -86,19 +86,28 @@ jobs:
           persist-credentials: false
 
       - name: void-packages + our templates
+        shell: bash
         run: |
           git config --global --add safe.directory '*'
           ci/prepare.sh "$GITHUB_WORKSPACE/vp"
           chown -R builder:builder "$GITHUB_WORKSPACE"
 
       - name: Build
+        shell: bash
         env:
           ARCH: ${{ matrix.arch }}
           PKGS: ${{ needs.plan.outputs.packages }}
         run: |
-          sudo -Eu builder git config --global --add safe.directory '*'
+          set -o pipefail
           # shellcheck disable=SC2086
-          sudo -Eu builder ci/build.sh "$GITHUB_WORKSPACE/vp" "$ARCH" $PKGS
+          sudo -Eu builder ci/build.sh "$GITHUB_WORKSPACE/vp" "$ARCH" $PKGS 2>&1 | tee build.log
+
+      - name: Report failure
+        if: failure()
+        shell: bash
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: ci/annotate.sh "Build $ARCH failed" build.log
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -136,6 +145,7 @@ jobs:
           path: artifacts
 
       - name: Sign and upload
+        shell: bash
         env:
           XBPS_PRIVKEY: ${{ secrets.XBPS_PRIVKEY }}
           REPO_URL: ${{ vars.REPO_URL }}
