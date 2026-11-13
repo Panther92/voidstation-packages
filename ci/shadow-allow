@@ -1,0 +1,2 @@
+# Package names that may exist in void-packages AND here.
+# Empty on purpose: never replace a Void package under its own name.

@@ -1,0 +1,3 @@
+# void-packages commit our templates are built against (overlay).
+# Bump deliberately: ci/bump-void-packages.sh, then let CI rebuild.
+8f9f745d1bf6702c2327a2a0e70364da53b92fbb
