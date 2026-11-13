@@ -8,18 +8,18 @@
 # _dl is the download address from the release API.
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=mission-center
-version=0
+version=1.2.0
 revision=1
 archs="x86_64"
 _file="mission-center-${version}.AppImage"
-_dl=""
+_dl="https://gitlab.com/mission-center-devs/mission-center/-/jobs/15536631699/artifacts/raw/MissionCenter-1.2.0-x86_64.AppImage"
 depends="dbus"
 short_desc="Monitor CPU, memory, disk, network and GPU usage - official release, repackaged"
 maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://missioncenter.io"
 distfiles="${_dl}>${_file}"
-checksum=PENDING
+checksum=b3b5c84470a927d189c251039d223464125f7068b3164fda43acb9100384576d
 skip_extraction="${_file}"
 nostrip=yes
 nopie=yes

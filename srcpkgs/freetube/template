@@ -4,7 +4,7 @@
 # AppImage runtime at run time) and installed to /usr/lib/freetube.
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=freetube
-version=0
+version=0.26.0
 revision=1
 archs="x86_64"
 _file="freetube-${version}-beta-amd64.AppImage"
@@ -14,7 +14,7 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="AGPL-3.0-only"
 homepage="https://freetubeapp.io"
 distfiles="https://github.com/FreeTubeApp/FreeTube/releases/download/v${version}-beta/${_file}"
-checksum=PENDING
+checksum=ee61804606b0ed3bbbe9c23e8cd4981a63938901f9bb7f106ca6fac50c6a86b1
 skip_extraction="${_file}"
 nostrip=yes
 nopie=yes

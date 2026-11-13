@@ -5,7 +5,7 @@
 # it keep their own licenses.
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=itch
-version=0
+version=26.22.0
 revision=1
 archs="x86_64"
 _file="itch-${version}-linux-amd64.zip"
@@ -16,7 +16,7 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="MIT"
 homepage="https://itch.io/app"
 distfiles="https://broth.itch.zone/itch/linux-amd64/${version}/archive/default>${_file}"
-checksum=PENDING
+checksum=20cae4918012fe5fea5a0ca428c62b84eff9cbf9baf381c07b4181ab6b5e77f8
 skip_extraction="${_file}"
 nostrip=yes
 nopie=yes
