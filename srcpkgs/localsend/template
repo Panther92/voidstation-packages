@@ -4,7 +4,7 @@
 # AppImage runtime at run time) and installed to /usr/lib/localsend.
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=localsend
-version=0
+version=1.18.2
 revision=1
 archs="x86_64"
 _file="LocalSend-${version}-linux-x86-64.AppImage"
@@ -14,7 +14,7 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="Apache-2.0"
 homepage="https://localsend.org"
 distfiles="https://github.com/localsend/localsend/releases/download/v${version}/${_file}"
-checksum=PENDING
+checksum=19f21613d1834f6caa69517113670461a3f10b80a2a315f86548c0663d9c0aaf
 skip_extraction="${_file}"
 nostrip=yes
 nopie=yes

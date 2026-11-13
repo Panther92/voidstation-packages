@@ -9,7 +9,7 @@
 # (launcher/voidstation-mullvad), which it replaces.
 # Version and checksums are maintained by ci/update.py (update.json).
 pkgname=mullvad-vpn
-version=0
+version=2026.5
 revision=1
 archs="x86_64"
 _deb="MullvadVPN-${version}_amd64.deb"
@@ -21,7 +21,8 @@ license="GPL-3.0-only"
 homepage="https://mullvad.net"
 distfiles="https://github.com/mullvad/mullvadvpn-app/releases/download/${version}/${_deb}
  https://github.com/mullvad/mullvadvpn-app/releases/download/${version}/${_deb}.asc"
-checksum=PENDING
+checksum="aa6bd00452588597f50e8ca2f02bb91e9c295c4f01b0ae907354552e7428e7ab
+ a4e02eb2546a03fc1fbefae8063194cb6d274c304f18b8dce98bd98d9cdbe736"
 skip_extraction="${_deb} ${_deb}.asc"
 conflicts="mullvad-vpn-voidstation>=0"
 replaces="mullvad-vpn-voidstation>=0"

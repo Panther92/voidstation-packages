@@ -4,7 +4,7 @@
 # AppImage runtime at run time) and installed to /usr/lib/heroic.
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=heroic
-version=0
+version=2.22.4
 revision=1
 archs="x86_64"
 _file="Heroic-${version}-linux-x86_64.AppImage"
@@ -14,7 +14,7 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="GPL-3.0-only"
 homepage="https://heroicgameslauncher.com"
 distfiles="https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher/releases/download/v${version}/${_file}"
-checksum=PENDING
+checksum=1664fc3c8e746325f049273272a0eae5a7f653bd3eb4534c2e2a26ef90086e99
 skip_extraction="${_file}"
 nostrip=yes
 nopie=yes

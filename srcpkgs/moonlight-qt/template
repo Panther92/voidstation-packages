@@ -6,7 +6,7 @@
 # clients).
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=moonlight-qt
-version=0
+version=6.2.0
 revision=1
 hostmakedepends="pkg-config qt6-base qt6-declarative qt6-tools"
 makedepends="qt6-base-devel qt6-declarative-devel qt6-svg-devel SDL2-devel
@@ -18,7 +18,7 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://moonlight-stream.org"
 distfiles="https://github.com/moonlight-stream/moonlight-qt/releases/download/v${version}/MoonlightSrc-${version}.tar.gz"
-checksum=PENDING
+checksum=217afac54e4f8734f3d97b32cb8c8b46b677e87f25b77c945343dd06f359e189
 create_wrksrc=yes
 
 do_configure() {

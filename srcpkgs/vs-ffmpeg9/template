@@ -15,7 +15,7 @@
 # files and the unversioned .so links live in their own directories so the
 # -devel package does not clash with ffmpeg6-devel.
 pkgname=vs-ffmpeg9
-version=0
+version=9.0.2
 revision=1
 hostmakedepends="pkg-config nasm"
 makedepends="x264-devel opus-devel libva-devel libdrm-devel"
@@ -24,7 +24,7 @@ maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://ffmpeg.org"
 distfiles="https://ffmpeg.org/releases/ffmpeg-${version}.tar.xz"
-checksum=PENDING
+checksum=8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e
 build_options="full"
 desc_option_full="Complete FFmpeg instead of the slim recording-only build"
 
