@@ -47,16 +47,17 @@ mkdir -p "$out"
 shopt -s nullglob
 
 # --- 1 + 2: collect ------------------------------------------------------
-for arch in $archs; do
-	# one artifact per build job: pkgs-<arch>-<group>
-	for f in "$art"/pkgs-"$arch"-*/*.xbps; do
-		# the first arch (x86_64) wins for noarch packages
-		[ -e "$out/${f##*/}" ] || cp "$f" "$out/"
-	done
-done
+# One artifact per build job (pkgs-<arch>-<group>). download-artifact puts
+# each into its own folder, except when a run has just one: then the files
+# land directly in $art (vs-chdman_2, 2026-11-14: "nothing to publish").
+# So take every .xbps below $art; x86_64 artifacts first, they win for
+# noarch packages.
+while IFS= read -r f; do
+	[ -e "$out/${f##*/}" ] || cp "$f" "$out/"
+done < <(find "$art" -type f -name '*.xbps' | awk '/pkgs-x86_64-/ { print; next } { rest[NR] = $0 } END { for (i in rest) print rest[i] }')
 new=("$out"/*.xbps)
 if [ ${#new[@]} = 0 ]; then
-	echo "nothing to publish"
+	echo "::warning title=Nothing published::no packages found in the build artifacts"
 	exit 0
 fi
 printf 'new: %s\n' "${new[@]##*/}"
