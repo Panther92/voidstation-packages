@@ -51,7 +51,11 @@ do_install() {
 		vinstall "${pkgname}.desktop" 644 usr/share/applications
 	done
 	for d in squashfs-root/*.png; do
-		[ -f "$d" ] && vinstall "$d" 644 usr/share/pixmaps "${pkgname}.png"
+		# not "[ ] && vinstall": vinstall is an alias starting with "set -f;",
+		# so the && would only guard that part
+		if [ -f "$d" ]; then
+			vinstall "$d" 644 usr/share/pixmaps "${pkgname}.png"
+		fi
 	done
 	return 0
 }

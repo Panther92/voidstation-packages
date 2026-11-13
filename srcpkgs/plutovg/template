@@ -1,0 +1,22 @@
+# Template file for 'plutovg'
+#
+# Build dependency of PCSX2 only (not in Void). Built as a static library:
+# nothing on the devices needs it, PCSX2 links it in.
+# Version and checksum are maintained by ci/update.py (update.json).
+pkgname=plutovg
+version=0
+revision=1
+archs="x86_64"
+build_style=cmake
+configure_args="-DBUILD_SHARED_LIBS=OFF -DPLUTOVG_BUILD_EXAMPLES=OFF
+ -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+short_desc="Tiny 2D vector graphics library in C (static, build dependency)"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="MIT"
+homepage="https://github.com/sammycage/plutovg"
+distfiles="https://github.com/sammycage/plutovg/archive/refs/tags/v${version}.tar.gz"
+checksum=PENDING
+
+post_install() {
+	vlicense LICENSE
+}

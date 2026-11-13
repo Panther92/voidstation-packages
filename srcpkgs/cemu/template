@@ -1,0 +1,53 @@
+# Template file for 'cemu'
+#
+# Wii U emulator, built from the release tag with its git submodules (fetched
+# with git, commit pinned in _commit). Cemu needs wxWidgets 3.3 (Void has
+# 3.2), so its own vcpkg builds the libraries it needs during the build
+# (network access in the build, as upstream does); GTK 3 comes from Void,
+# so the UI follows the system theme.
+# Version and commit are maintained by ci/update.py (update.json).
+pkgname=cemu
+version=0
+revision=1
+_commit=0
+archs="x86_64"
+build_style=cmake
+configure_args="-DENABLE_VCPKG=ON -DALLOW_PORTABLE=OFF -DENABLE_DISCORD_RPC=OFF
+ -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+hostmakedepends="git pkg-config clang nasm ninja curl zip unzip tar python3
+ perl autoconf automake libtool which bison flex"
+makedepends="gtk+3-devel libX11-devel libXrandr-devel MesaLib-devel glu-devel
+ wayland-devel wayland-protocols bluez-devel libsecret-devel libgcrypt-devel
+ libpulseaudio-devel alsa-lib-devel eudev-libudev-devel libusb-devel"
+short_desc="Nintendo Wii U emulator"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="MPL-2.0"
+homepage="https://cemu.info"
+
+do_fetch() {
+	rm -rf "${wrksrc}"
+	git clone --quiet --depth 1 --branch "v${version}" --recurse-submodules \
+		https://github.com/cemu-project/Cemu.git "${wrksrc}"
+	if [ "$(git -C "${wrksrc}" rev-parse HEAD)" != "${_commit}" ]; then
+		msg_error "tag v${version} is $(git -C "${wrksrc}" rev-parse HEAD), expected ${_commit}\n"
+	fi
+}
+
+do_extract() {
+	:
+}
+
+do_install() {
+	# upstream has no install target for the binary on Linux everywhere:
+	# take what the build produced in bin/
+	vmkdir usr/lib/cemu
+	cp -a bin/. "${DESTDIR}/usr/lib/cemu/"
+	vmkdir usr/bin
+	ln -s /usr/lib/cemu/Cemu_release "${DESTDIR}/usr/bin/cemu"
+	if [ -f dist/linux/info.cemu.Cemu.desktop ]; then
+		vinstall dist/linux/info.cemu.Cemu.desktop 644 usr/share/applications
+	fi
+	if [ -f dist/linux/info.cemu.Cemu.png ]; then
+		vinstall dist/linux/info.cemu.Cemu.png 644 usr/share/pixmaps
+	fi
+}

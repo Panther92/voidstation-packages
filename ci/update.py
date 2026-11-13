@@ -33,6 +33,10 @@ Optional for every source:
           "field": "direct_asset_url"}
                               json source only: write the download address of
                               the picked asset into the template variable
+  "commit_var": "_commit"     github sources: write the commit the release tag
+                              points to into this variable (for templates that
+                              fetch with git in do_fetch, e.g. because of
+                              submodules; they have no distfiles/checksum)
 
 Prints the names of the changed templates, one per line, on stdout.
 """
@@ -87,6 +91,17 @@ def dig(doc, path):
             continue
         doc = doc[int(part)] if isinstance(doc, list) else doc[part]
     return doc
+
+
+def tag_commit(repo, tag):
+    """Commit a tag points to (peeled for annotated tags)."""
+    out = subprocess.run(["git", "ls-remote", f"https://github.com/{repo}", f"refs/tags/{tag}", f"refs/tags/{tag}^{{}}"],
+                         capture_output=True, text=True, check=True).stdout.split("\n")
+    refs = dict(reversed(line.split("\t", 1)) for line in out if "\t" in line)
+    sha = refs.get(f"refs/tags/{tag}^{{}}") or refs.get(f"refs/tags/{tag}")
+    if not sha:
+        raise ValueError(f"tag {tag} not found in {repo}")
+    return sha
 
 
 def resolve(cfg):
@@ -219,6 +234,9 @@ def main():
         if not newer and not placeholder:
             log(f"{pkg}: {cur} is current")
             continue
+        if newer and cfg.get("commit_var"):
+            tag = cfg.get("tag_format", "v{version}").format(version=latest)
+            EXTRA_VARS[cfg["commit_var"]] = tag_commit(cfg["repo"], tag)
         if newer:
             text = set_var(text, "version", latest)
             text = set_var(text, "revision", "1")
@@ -227,6 +245,10 @@ def main():
         open(tpl, "w").write(text)
         try:
             files = distfiles(tpl)
+            if not files and cfg.get("commit_var"):
+                log(f"{pkg}: {cur} -> {latest} (git, commit {EXTRA_VARS.get(cfg['commit_var'], '?')[:12]})")
+                changed.append(pkg)
+                continue
             if not files:
                 raise ValueError("distfiles is empty")
             sums = [sha256_url(f.split(">", 1)[0]) for f in files]

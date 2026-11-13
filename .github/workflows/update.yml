@@ -92,8 +92,11 @@ jobs:
             git commit -qm "Update: $CHANGED" -m "Automated by the update check (ci/update.py)."
           fi
           git push -q origin "HEAD:$branch"
-          # pushes with the workflow token start no workflow: start the test build explicitly
-          gh workflow run build.yml --ref "$branch" -f packages="$CHANGED" -f publish=false
+          # pushes with the workflow token start no workflow: start the test build explicitly.
+          # On a claude/** branch this run replaces (cancels) the build of the push that
+          # started us, so build everything the branch changes, not only $CHANGED.
+          if [ "$EVENT" = push ]; then want=branch; else want="$CHANGED"; fi
+          gh workflow run build.yml --ref "$branch" -f packages="$want" -f publish=false
           if [ "$EVENT" != push ]; then
             gh pr create --base main --head "$branch" --title "Update: $CHANGED" \
               --body "New upstream versions, found by the update check. The test build runs on this branch; publishing needs the merge and the approval in \`release\`." \

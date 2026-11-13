@@ -1,0 +1,6 @@
+{
+  "source": "github-tag",
+  "repo": "xemu-project/xemu",
+  "tag": "^v(?P<version>\\d+\\.\\d+\\.\\d+)$",
+  "commit_var": "_commit"
+}

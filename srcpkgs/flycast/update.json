@@ -1,0 +1,6 @@
+{
+  "source": "github-tag",
+  "repo": "flyinghead/flycast",
+  "tag": "^v(?P<version>\\d+\\.\\d+(?:\\.\\d+)?)$",
+  "commit_var": "_commit"
+}

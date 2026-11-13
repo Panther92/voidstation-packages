@@ -1,0 +1,7 @@
+{
+  "source": "github-tag",
+  "repo": "azahar-emu/azahar",
+  "tag": "^(?P<version>\\d{4}\\.\\d+(?:\\.\\d+)?)$",
+  "tag_format": "{version}",
+  "commit_var": "_commit"
+}

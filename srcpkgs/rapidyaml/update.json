@@ -1,0 +1,6 @@
+{
+  "source": "github-tag",
+  "repo": "biojppm/rapidyaml",
+  "tag": "^v(?P<version>0\\.12\\.\\d+)$",
+  "commit_var": "_commit"
+}
