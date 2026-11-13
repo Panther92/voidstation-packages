@@ -18,7 +18,7 @@ configure_args="-DUSE_SYSTEM_QT=ON -DUSE_SYSTEM_SDL2=ON -DUSE_SYSTEM_LIBUSB=ON
  -DENABLE_DISCORD_RPC=OFF -DCITRA_USE_PRECOMPILED_HEADERS=OFF"
 hostmakedepends="git pkg-config python3 qt6-base qt6-tools glslang"
 makedepends="qt6-base-devel qt6-multimedia-devel qt6-tools-devel SDL2-devel
- libusb-devel openssl-devel zlib-devel pipewire-devel libpulseaudio-devel
+ libusb-devel openssl-devel zlib-devel pipewire-devel pulseaudio-devel
  alsa-lib-devel libX11-devel MesaLib-devel"
 short_desc="Nintendo 3DS emulator"
 maintainer="Paul Volz <paulvolz92@gmail.com>"

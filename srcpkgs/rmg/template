@@ -12,7 +12,7 @@ build_style=cmake
 configure_args="-DPORTABLE_INSTALL=OFF -DUPDATER=OFF -DAPPIMAGE_UPDATER=OFF
  -DUSE_CCACHE=OFF -DUSE_ANGRYLION=OFF"
 hostmakedepends="pkg-config nasm git qt6-base qt6-tools"
-makedepends="qt6-base-devel qt6-svg-devel qt6-websockets-devel SDL3-devel
+makedepends="qt6-base-devel qt6-svg-devel qt6-websockets-devel SDL3-devel SDL3_net-devel
  libusb-devel hidapi-devel libsamplerate-devel speexdsp-devel speex-devel
  minizip-devel freetype-devel libpng-devel zlib-devel MesaLib-devel glu-devel
  Vulkan-Headers binutils-devel"

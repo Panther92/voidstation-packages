@@ -31,6 +31,8 @@ do_extract() {
 	chmod +x app.AppImage
 	./app.AppImage --appimage-extract >/dev/null
 	rm app.AppImage
+	# some AppImages ship world-writable files (xbps-src refuses them)
+	chmod -R go-w squashfs-root
 }
 
 do_install() {

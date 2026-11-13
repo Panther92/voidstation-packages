@@ -22,7 +22,7 @@ makedepends="qt6-base-devel qt6-base-private-devel qt6-tools-devel
  kddockwidgets-devel SDL3-devel libpng-devel libjpeg-turbo-devel zlib-devel
  libzstd-devel liblz4-devel libwebp-devel freetype-devel fontconfig-devel
  libcurl-devel libpcap-devel libX11-devel libXrandr-devel wayland-devel
- libbacktrace shaderc dbus-devel libpulseaudio-devel alsa-lib-devel
+ libbacktrace shaderc dbus-devel pulseaudio-devel alsa-lib-devel
  plutovg plutosvg rapidyaml vs-ffmpeg9-devel"
 depends="vs-ffmpeg9"
 short_desc="PlayStation 2 emulator"

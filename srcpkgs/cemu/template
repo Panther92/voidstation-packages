@@ -17,8 +17,8 @@ configure_args="-DENABLE_VCPKG=ON -DALLOW_PORTABLE=OFF -DENABLE_DISCORD_RPC=OFF
 hostmakedepends="git pkg-config clang nasm ninja curl zip unzip tar python3
  perl autoconf automake libtool which bison flex"
 makedepends="gtk+3-devel libX11-devel libXrandr-devel MesaLib-devel glu-devel
- wayland-devel wayland-protocols bluez-devel libsecret-devel libgcrypt-devel
- libpulseaudio-devel alsa-lib-devel eudev-libudev-devel libusb-devel"
+ wayland-devel wayland-protocols libbluetooth-devel libsecret-devel libgcrypt-devel
+ pulseaudio-devel alsa-lib-devel eudev-libudev-devel libusb-devel"
 short_desc="Nintendo Wii U emulator"
 maintainer="Paul Volz <paulvolz92@gmail.com>"
 license="MPL-2.0"
