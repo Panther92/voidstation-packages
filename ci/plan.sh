@@ -63,4 +63,15 @@ case "$mode" in
 		fi ;;
 esac
 
-echo "$list" | xargs
+# templates still waiting for their first version/checksums (filled in by
+# the update check, which then starts the build itself) are left out
+out=""
+for p in $list; do
+	t="srcpkgs/$p/template"
+	if grep -qE '^version=0$|^checksum=PENDING$' "$t"; then
+		echo "::notice title=$p::placeholder version/checksum, left to the update check" >&2
+		continue
+	fi
+	out="$out $p"
+done
+echo "$out" | xargs

@@ -1,0 +1,101 @@
+name: Update check
+
+# Daily: look for new upstream versions (srcpkgs/*/update.json). New versions
+# go to a branch auto/update-<date>, with a pull request and a test build;
+# publishing still needs the merge and the approval in "release".
+# On claude/** branches: fill in placeholders (version=0, checksum=PENDING)
+# of new templates and commit them to that same branch, then test-build.
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Templates to check: "all", or names separated by spaces'
+        required: true
+        default: all
+  push:
+    branches: ['claude/**']
+    paths: ['srcpkgs/**']
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+
+concurrency:
+  group: update-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Check upstream versions
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/void-linux/void-glibc-full:20250901R1
+      options: --platform linux/amd64
+    steps:
+      - name: Prepare container
+        run: |
+          mkdir -p /etc/xbps.d && cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
+          xbps-install -Syu xbps && xbps-install -yu
+          xbps-install -y bash git curl python3 github-cli
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check and update
+        id: update
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          INPUT: ${{ github.event.inputs.packages }}
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory '*'
+          args=()
+          if [ "$EVENT" = push ]; then
+            args+=(--pending)
+          elif [ -n "${INPUT:-}" ] && [ "$INPUT" != all ]; then
+            # shellcheck disable=SC2206
+            args+=($INPUT)
+          fi
+          changed="$(python3 ci/update.py "${args[@]}" | xargs)"
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Updated templates"
+            if [ -n "$changed" ]; then git diff --stat -- srcpkgs; else echo "none"; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit, test build, pull request
+        if: steps.update.outputs.changed != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGED: ${{ steps.update.outputs.changed }}
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add srcpkgs
+          if [ "$EVENT" = push ]; then
+            branch="$REF_NAME"
+            git commit -qm "Fill in version and checksums: $CHANGED" -m "Automated by the update check (ci/update.py)."
+          else
+            branch="auto/update-$(date -u +%Y%m%d)-${GITHUB_RUN_ID}"
+            git switch -q -c "$branch"
+            git commit -qm "Update: $CHANGED" -m "Automated by the update check (ci/update.py)."
+          fi
+          git push -q origin "HEAD:$branch"
+          # pushes with the workflow token start no workflow: start the test build explicitly
+          gh workflow run build.yml --ref "$branch" -f packages="$CHANGED" -f publish=false
+          if [ "$EVENT" != push ]; then
+            gh pr create --base main --head "$branch" --title "Update: $CHANGED" \
+              --body "New upstream versions, found by the update check. The test build runs on this branch; publishing needs the merge and the approval in \`release\`." \
+              || echo "::warning title=No pull request::creating it failed - allow GitHub Actions to create pull requests (Settings → Actions → General), or open it by hand: $branch"
+          fi
