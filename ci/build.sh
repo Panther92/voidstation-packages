@@ -56,6 +56,27 @@ for pkg in "${order[@]}"; do
 	built+=("$pkg")
 done
 
+# Every package with programs or shared libraries must depend on something
+# (at least glibc, found by xbps-src's shlib scan). vs-chdman_1 came out with
+# no run-time dependency at all and failed on a device (2026-11-14).
+rdeps_check() {
+	local repo="$PWD/hostdir/binpkgs" f pv name files deps
+	for f in "$repo"/*."$arch".xbps "$repo"/*.noarch.xbps; do
+		[ -e "$f" ] || continue
+		pv="${f##*/}"; pv="${pv%.*.xbps}"
+		name="$(xbps-uhelper getpkgname "$pv")" || continue
+		files="$(XBPS_ARCH="$arch" xbps-query -i --repository="$repo" -R -f "$name" 2>/dev/null |
+			sed 's/ -> .*//' | grep -E '^/usr/(s?bin|libexec)/|\.so(\.[0-9]+)*$' || true)"
+		[ -n "$files" ] || continue
+		deps="$(XBPS_ARCH="$arch" xbps-query -i --repository="$repo" -R -x "$name" 2>/dev/null || true)"
+		if [ -z "$deps" ]; then
+			echo "::error title=$name ($arch)::no run-time dependencies, although it ships $(echo "$files" | head -1) and more – shlib scan found nothing"
+			failed+=("$name")
+		fi
+	done
+}
+rdeps_check
+
 echo "built: ${built[*]:-none}"
 echo "skipped: ${skipped[*]:-none}"
 echo "failed: ${failed[*]:-none}"
