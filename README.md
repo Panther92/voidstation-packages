@@ -7,7 +7,7 @@ not ship, or not in the shape VoidStation needs:
 - **XLibre** – the X server VoidStation uses, with its drivers
   (templates taken over from [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre), see `NOTICE.md`)
 - **vs-chdman** – `chdman` from MAME on its own, without the whole emulator
-- later: Mullvad, emulators and apps that upstream only offers as AppImage,
+- Mullvad, emulators and apps that upstream only offers as AppImage,
   Flatpak or `.deb`
 
 Packages are built by GitHub Actions on top of a pinned commit of
