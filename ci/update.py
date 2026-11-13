@@ -22,7 +22,8 @@ update.json:
   {"source": "github-release", "repo": "owner/name",
    "tag": "^v(?P<version>[0-9.]+)$",            # optional, default below
    "asset": "name-{version}-x86_64.AppImage",   # optional: release must have it
-   "prerelease": true}                          # optional: accept pre-releases
+   "prerelease": true,                          # optional: accept pre-releases
+   "latest": true}                              # optional: only the release marked latest
   {"source": "github-tag", "repo": "owner/name", "tag": "..."}
   {"source": "json", "url": "...", "path": "key.sub.0.name", "regex": "..."}
   {"source": "text", "url": "...", "regex": "(?P<version>...)"}
@@ -108,8 +109,14 @@ def resolve(cfg):
     src = cfg["source"]
     if src == "github-release":
         rx = cfg.get("tag", DEFAULT_TAG)
-        rels = json.loads(http(f"https://api.github.com/repos/{cfg['repo']}/releases?per_page=50",
-                               "application/vnd.github+json"))
+        if cfg.get("latest"):
+            # the release GitHub marks as latest; for repos whose newest 50
+            # releases are all nightlies (PCSX2)
+            rels = [json.loads(http(f"https://api.github.com/repos/{cfg['repo']}/releases/latest",
+                                    "application/vnd.github+json"))]
+        else:
+            rels = json.loads(http(f"https://api.github.com/repos/{cfg['repo']}/releases?per_page=50",
+                                   "application/vnd.github+json"))
         found = []
         for rel in rels:
             if rel.get("draft") or (rel.get("prerelease") and not cfg.get("prerelease")):
