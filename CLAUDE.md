@@ -22,6 +22,9 @@ xbps package repository for VoidStation. Read `README.md` for layout and rules.
 - Build jobs: one per group of interdependent templates and architecture
   (`ci/groups.py`); publish collects all `pkgs-<arch>-<group>` artifacts and
   only runs if every build job succeeded.
+- `srcpkgs/xlibre*` follow xlibre-void: the daily update check runs
+  `ci/xlibre-sync.sh` (commit in `ci/xlibre-void.ref`) and opens a PR when
+  upstream changed. Do not edit those templates by hand; fixes go upstream.
 - Call scripts through their interpreter in the workflow (`bash ci/…`), so a
   missing executable bit cannot break a run (it did once, 2026-11-13).
 

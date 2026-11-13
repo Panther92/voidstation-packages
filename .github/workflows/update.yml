@@ -1,7 +1,8 @@
 name: Update check
 
-# Daily: look for new upstream versions (srcpkgs/*/update.json). New versions
-# go to a branch auto/update-<date>, with a pull request and a test build;
+# Daily: look for new upstream versions (srcpkgs/*/update.json) and for new
+# commits of xlibre-void (ci/xlibre-sync.sh, templates srcpkgs/xlibre*). New
+# versions go to a branch auto/update-<date>, with a pull request and a test build;
 # publishing still needs the merge and the approval in "release".
 # On claude/** branches: fill in placeholders (version=0, checksum=PENDING)
 # of new templates and commit them to that same branch, then test-build.
@@ -40,7 +41,7 @@ jobs:
         run: |
           mkdir -p /etc/xbps.d && cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
           xbps-install -Syu xbps && xbps-install -yu
-          xbps-install -y bash git curl python3 github-cli
+          xbps-install -y bash git curl python3 github-cli diffutils
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -64,6 +65,11 @@ jobs:
             args+=($INPUT)
           fi
           changed="$(python3 ci/update.py "${args[@]}" | xargs)"
+          # XLibre: templates follow xlibre-void (daily and "all"; not for the placeholder fill on claude/**)
+          if [ "$EVENT" != push ] && { [ -z "${INPUT:-}" ] || [ "$INPUT" = all ]; }; then
+            xl="$(bash ci/xlibre-sync.sh | xargs)"
+            changed="$(printf '%s %s' "$changed" "$xl" | xargs)"
+          fi
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
           {
             echo "### Updated templates"
@@ -82,7 +88,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add srcpkgs
+          git add srcpkgs ci/xlibre-void.ref NOTICE.md
           if [ "$EVENT" = push ]; then
             branch="$REF_NAME"
             git commit -qm "Fill in version and checksums: $CHANGED" -m "Automated by the update check (ci/update.py)."
