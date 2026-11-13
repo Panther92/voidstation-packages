@@ -13,6 +13,7 @@
 # Result: <workdir>/hostdir/binpkgs/*.xbps
 set -euo pipefail
 
+here="$(cd "$(dirname "$0")/.." && pwd)"   # before cd: $0 may be relative
 work="${1:?workdir}" arch="${2:?arch}"
 shift 2
 cd "$work"
@@ -32,7 +33,6 @@ available() {   # templates without archs= build everywhere
 	src show-avail "$1" >/dev/null 2>&1
 }
 
-here="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p logs
 built=() skipped=() failed=()
 for pkg in "${order[@]}"; do
