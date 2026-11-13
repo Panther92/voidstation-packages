@@ -1,0 +1,39 @@
+# Template file for 'itch'
+#
+# The itch.io desktop app as itch.io distributes it (broth.itch.zone, zip),
+# installed to /usr/lib/itch. The app is MIT licensed; games installed with
+# it keep their own licenses.
+# Version and checksum are maintained by ci/update.py (update.json).
+pkgname=itch
+version=0
+revision=1
+archs="x86_64"
+_file="itch-${version}-linux-amd64.zip"
+hostmakedepends="unzip"
+depends="gtk+3 nss libcups libgbm at-spi2-core alsa-lib libxkbcommon libXScrnSaver libXtst xdg-utils"
+short_desc="Desktop app for itch.io - official release, repackaged"
+maintainer="Paul Volz <paulvolz92@gmail.com>"
+license="MIT"
+homepage="https://itch.io/app"
+distfiles="https://broth.itch.zone/itch/linux-amd64/${version}/archive/default>${_file}"
+checksum=PENDING
+skip_extraction="${_file}"
+nostrip=yes
+nopie=yes
+noshlibprovides=yes
+noverifyrdeps=yes
+
+do_extract() {
+	unzip -q "${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_file}"
+}
+
+do_install() {
+	[ -x itch ] || msg_error "no 'itch' binary in the archive\n"
+	vmkdir usr/lib/${pkgname}
+	cp -a . "${DESTDIR}/usr/lib/${pkgname}/"
+	vmkdir usr/bin
+	ln -s /usr/lib/${pkgname}/itch "${DESTDIR}/usr/bin/itch"
+	if [ -f LICENSE ]; then
+		vlicense LICENSE
+	fi
+}

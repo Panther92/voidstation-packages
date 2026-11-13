@@ -1,0 +1,7 @@
+{
+  "source": "json",
+  "url": "https://gitlab.com/api/v4/projects/mission-center-devs%2Fmission-center/releases/permalink/latest",
+  "path": "tag_name",
+  "regex": "^v?(?P<version>\\d+(?:\\.\\d+)+)$",
+  "var": {"name": "_dl", "list": "assets.links", "pick": "x86_64.*AppImage|AppImage.*x86_64", "field": "direct_asset_url"}
+}

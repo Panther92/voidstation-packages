@@ -21,10 +21,18 @@ stubbed out (x86_64, glibc).
 update.json:
   {"source": "github-release", "repo": "owner/name",
    "tag": "^v(?P<version>[0-9.]+)$",            # optional, default below
-   "asset": "name-{version}-x86_64.AppImage"}    # optional: release must have it
+   "asset": "name-{version}-x86_64.AppImage",   # optional: release must have it
+   "prerelease": true}                          # optional: accept pre-releases
   {"source": "github-tag", "repo": "owner/name", "tag": "..."}
   {"source": "json", "url": "...", "path": "key.sub.0.name", "regex": "..."}
   {"source": "text", "url": "...", "regex": "(?P<version>...)"}
+
+Optional for every source:
+  "replace": [["-", "."]]     applied to the version (xbps versions have no '-')
+  "var": {"name": "_dl", "list": "assets.links", "pick": "x86_64.*AppImage$",
+          "field": "direct_asset_url"}
+                              json source only: write the download address of
+                              the picked asset into the template variable
 
 Prints the names of the changed templates, one per line, on stdout.
 """
@@ -70,6 +78,17 @@ def vkey(v):
     return [int(p) if p.isdigit() else p for p in re.split(r"[._+]", v)]
 
 
+EXTRA_VARS = {}
+
+
+def dig(doc, path):
+    for part in (path or "").split("."):
+        if part == "":
+            continue
+        doc = doc[int(part)] if isinstance(doc, list) else doc[part]
+    return doc
+
+
 def resolve(cfg):
     src = cfg["source"]
     if src == "github-release":
@@ -78,7 +97,7 @@ def resolve(cfg):
                                "application/vnd.github+json"))
         found = []
         for rel in rels:
-            if rel.get("draft") or rel.get("prerelease"):
+            if rel.get("draft") or (rel.get("prerelease") and not cfg.get("prerelease")):
                 continue
             v = match_version(rx, rel.get("tag_name") or "")
             if not v:
@@ -96,12 +115,16 @@ def resolve(cfg):
         found = [v for v in (match_version(rx, line.split("refs/tags/", 1)[-1]) for line in out.splitlines()) if v]
         return max(found, key=vkey) if found else None
     if src == "json":
-        data = json.loads(http(cfg["url"]))
-        for part in cfg.get("path", "").split("."):
-            if part == "":
-                continue
-            data = data[int(part)] if isinstance(data, list) else data[part]
-        return match_version(cfg.get("regex", r"(?P<version>\d[\w.]*)"), str(data))
+        doc = json.loads(http(cfg["url"]))
+        v = match_version(cfg.get("regex", r"(?P<version>\d[\w.-]*)"), str(dig(doc, cfg.get("path", ""))))
+        if v and cfg.get("var"):
+            spec = cfg["var"]
+            pick = re.compile(spec["pick"])
+            hits = [a for a in dig(doc, spec["list"]) if pick.search(str(a.get("name", "")) + " " + str(a.get(spec["field"], "")))]
+            if not hits:
+                raise ValueError(f"no asset matches {spec['pick']}")
+            EXTRA_VARS[spec["name"]] = hits[0][spec["field"]]
+        return v
     if src == "text":
         return match_version(cfg["regex"], http(cfg["url"]))
     raise ValueError(f"unknown source {src}")
@@ -178,8 +201,12 @@ def main():
         placeholder = cur == "0" or get_var(text, "checksum") == "PENDING"
         if pending_only and not placeholder:
             continue
+        EXTRA_VARS.clear()
         try:
-            latest = resolve(json.load(open(cfg_path)))
+            cfg = json.load(open(cfg_path))
+            latest = resolve(cfg)
+            for a, b in cfg.get("replace", []):
+                latest = latest.replace(a, b) if latest else latest
         except Exception as e:  # noqa: BLE001 - report and go on with the next template
             log(f"::warning title={pkg}::update check failed: {e}")
             failed.append(pkg)
@@ -195,6 +222,8 @@ def main():
         if newer:
             text = set_var(text, "version", latest)
             text = set_var(text, "revision", "1")
+            for name, value in EXTRA_VARS.items():
+                text = set_var(text, name, f'"{value}"')
         open(tpl, "w").write(text)
         try:
             files = distfiles(tpl)
