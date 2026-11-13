@@ -5,7 +5,8 @@
 # (upstream itself ships 9.0), Void has 6. It is loaded at runtime (dlopen)
 # for video capture only, so the headers are taken from vs-ffmpeg9-devel and
 # vs-ffmpeg9 is a plain runtime dependency. plutovg, plutosvg and rapidyaml
-# are static build dependencies from this repository.
+# are static build dependencies from this repository. patches/: upstream fix
+# for the FFmpeg 8+ API (not in 2.8.2 yet).
 # Version and checksum are maintained by ci/update.py (update.json).
 pkgname=pcsx2
 version=2.8.2

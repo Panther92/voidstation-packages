@@ -22,3 +22,17 @@ license="GPL-3.0-only"
 homepage="https://github.com/Rosalie241/RMG"
 distfiles="https://github.com/Rosalie241/RMG/archive/refs/tags/v${version}.tar.gz"
 checksum=9093a092256cbb1dab31060c0a413a7dc2ad07d6cc54354597b6ed4746fd31d1
+
+# GLideN64 (built as an ExternalProject at build time) wants zstd's CMake
+# package; Void builds zstd with make and ships none. A minimal config that
+# only marks it found is enough, GLideN64 links plain "zstd" (-lzstd).
+pre_configure() {
+	local d="${wrksrc}/vs-cmake/lib/cmake/zstd"
+	mkdir -p "$d"
+	echo 'set(zstd_FOUND TRUE)' > "$d/zstdConfig.cmake"
+}
+
+do_build() {
+	export CMAKE_PREFIX_PATH="${wrksrc}/vs-cmake"
+	ninja -C build ${makejobs}
+}

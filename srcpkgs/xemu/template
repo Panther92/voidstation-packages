@@ -10,7 +10,7 @@ version=0.8.139
 revision=1
 _commit="aa54c34cae1c09410d74c69a44210a9867fe2d16"
 archs="x86_64"
-hostmakedepends="git pkg-config python3 python3-yaml ninja meson cmake flex bison"
+hostmakedepends="git pkg-config python3 python3-yaml ninja meson cmake curl flex bison"
 makedepends="SDL3-devel libepoxy-devel pixman-devel gtk+3-devel openssl-devel
  libsamplerate-devel libpcap-devel libslirp-devel glib-devel zlib-devel
  libcurl-devel"
