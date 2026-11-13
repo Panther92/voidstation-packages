@@ -73,7 +73,10 @@ for arch in $archs; do
 	fi
 	files=("$out"/*."$arch".xbps "$out"/*.noarch.xbps)
 	[ ${#files[@]} = 0 ] && continue
-	XBPS_TARGET_ARCH="$arch" xbps-rindex -a "${files[@]}"
+	# -f: a package rebuilt with an unchanged version (e.g. as dependency of
+	# another template) gets new bytes; without -f the index would keep the
+	# old checksum while the upload replaces the file -> checksum mismatch
+	XBPS_TARGET_ARCH="$arch" xbps-rindex -a -f "${files[@]}"
 done
 
 # --- 3: sign -------------------------------------------------------------
@@ -126,6 +129,9 @@ echo "signed with $fp"
 pkgfiles=("${new[@]}")
 for f in "${new[@]}"; do pkgfiles+=("$f.sig2"); done
 idxfiles=("$out"/*-repodata)
+if compgen -G "$out/*-stagedata" >/dev/null; then
+	echo "::warning title=Staged packages::xbps-rindex staged packages (shlib changes not yet resolved); they are not in the published index: $(ls "$out"/*-stagedata)"
+fi
 
 case "${UPLOAD:-none}" in
 	none)
