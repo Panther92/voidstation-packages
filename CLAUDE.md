@@ -16,6 +16,12 @@ xbps package repository for VoidStation. Read `README.md` for layout and rules.
   (fingerprint `df:95:b3:5d:e1:24:a1:4d:1f:63:ff:f4:f3:56:af:5c`).
 - Never give a template the name of a void-packages template (CI refuses it);
   variants are called `vs-<name>`.
+- Never use GitHub's "Re-run" on a failed run: it reuses the old commit and
+  its scripts. Start a new run (Run workflow) instead. A re-run on `main` also
+  pushes other pending `main` runs out of the concurrency queue.
+- Build jobs: one per group of interdependent templates and architecture
+  (`ci/groups.py`); publish collects all `pkgs-<arch>-<group>` artifacts and
+  only runs if every build job succeeded.
 - Call scripts through their interpreter in the workflow (`bash ci/…`), so a
   missing executable bit cannot break a run (it did once, 2026-11-13).
 
