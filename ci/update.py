@@ -4,8 +4,8 @@
 
     ci/update.py [--pending] [pkg ...]
 
-For every template with a srcpkgs/<pkg>/update.json (all, or the ones
-named): ask upstream for the newest version; if it is newer than the
+For every template with a srcpkgs/<pkg>/update.json (all if no name is
+given, or the ones named): ask upstream for the newest version; if it is newer than the
 template's version (or the template is still a placeholder: version=0 or
 checksum=PENDING), write the new version, reset revision=1, download the
 distfiles and write their checksums.
@@ -206,8 +206,13 @@ def set_var(text, name, value):
 
 def main():
     args = sys.argv[1:]
-    if not args:
-        sys.exit(__doc__)
+    if "-h" in args or "--help" in args:
+        print(__doc__)
+        return
+    unknown = [a for a in args if a.startswith("-") and a != "--pending"]
+    if unknown:
+        sys.exit("unknown option: " + " ".join(unknown) + " (see --help)")
+    # no names: all templates. The daily run and "all" call it without arguments.
     pending_only = "--pending" in args
     names = [a for a in args if not a.startswith("--")]
     if not names:
