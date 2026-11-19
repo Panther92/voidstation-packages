@@ -4,7 +4,7 @@
 
 The templates in `srcpkgs/xlibre*` are taken over from
 [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre)
-(commit d62fc2b8ccfc61de627d1e19543baf044cff3d77), released under the MIT
+(commit 9839431d625e1b1882c56a8a8a50e4f971801427), released under the MIT
 license:
 
     MIT License
